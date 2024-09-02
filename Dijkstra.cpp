@@ -70,13 +70,13 @@ pvertice grafo::buscarPvertice(int n){
 }
 
 int grafo::contarVertices(){
-    int ve=0;
+    int numVertices=0;
     pvertice p=pGrafo;
     while(p!=NULL){
-        ve++;
+        numVertices++;
         p=p->sgteVertice;
     }
-    return ve;
+    return numVertices;
 }
 
 void grafo::insertarVertice(int x){
@@ -161,8 +161,6 @@ void grafo::dijkstra(int origen) {
                 q = q->sgteArista;
             }
         }
-        // // Imprimir el camino de s -> final
-        // cout << " -> " << minVertice<<"["<<cam[minVertice]<<"]";
     }
 
     // Imprimir el camino desde el origen hasta cada vértice
@@ -195,8 +193,10 @@ int main(){
     g.insertarArista(1,4,32);
     g.insertarArista(4,2,32);
     g.insertarArista(5,1,24);  
+
+		//La funcion de dijkstra solo pide el inicio
+		//Y este calculará la distancia hacia cada vértice.
     int inicio = 0;
-    int final = 1;
     g.dijkstra(inicio);
 
     return 0;
