@@ -14,6 +14,7 @@ struct arista{
     arista *sgteArista;
 };
 typedef arista *parista;
+
 struct vertice{
     int datoOrigen;
     arista *adyacente;
@@ -21,6 +22,7 @@ struct vertice{
     int visit;
 };
 typedef vertice *pvertice;
+
 class grafo{
     private:
         pvertice pGrafo;
@@ -29,27 +31,19 @@ class grafo{
     public:
         grafo();
         ~grafo();
-        void setVisit(int);
         
         void insertarVertice(int);
-        
-        void eliminarArista(int,int);
-        void insertarArista(int,int);
         void insertarArista(int,int,int);
 
-        bool existeCircuito();
-        bool buscarCircuitoDFS(pvertice,int,int);
         pvertice buscarPvertice(int);
-        void dijkstra(int,int); 
-        int contarAristas();
+        void dijkstra(int);
         int contarVertices();
-
-        void imprimirGrafo();
-
 };
+
 grafo::grafo(){
     pGrafo=NULL;
 }
+
 grafo::~grafo(){
     pvertice p,rp;
     parista r,ra;
@@ -67,13 +61,6 @@ grafo::~grafo(){
     }
 }
 
-void grafo::setVisit(int x){
-    pvertice p=pGrafo;
-    if(p!=NULL){
-        p->visit=x;
-        p=p->sgteVertice;
-    }
-}
 pvertice grafo::buscarPvertice(int n){
     pvertice p=pGrafo;
     if(p!=NULL)
@@ -81,6 +68,7 @@ pvertice grafo::buscarPvertice(int n){
             p=p->sgteVertice;
     return p;
 }
+
 int grafo::contarVertices(){
     int ve=0;
     pvertice p=pGrafo;
@@ -89,24 +77,6 @@ int grafo::contarVertices(){
         p=p->sgteVertice;
     }
     return ve;
-}
-int grafo::contarAristas(){
-    int ar=0;
-    pvertice p;
-    parista a;
-    p=pGrafo;
-    if(p==NULL) return 0;
-    else{
-        while(p!=NULL){
-            a=p->adyacente;
-            while(a!=NULL){
-                ar++;
-                a=a->sgteArista;
-            }
-            p=p->sgteVertice;
-        }
-    }
-    return ar/2;
 }
 
 void grafo::insertarVertice(int x){
@@ -117,36 +87,6 @@ void grafo::insertarVertice(int x){
     p->sgteVertice=pGrafo;
     pGrafo=p;
     p->visit=-1;
-}
-void grafo::insertarArista(int x, int y){
-    for(int i=0;i<2;i++){
-        pvertice p=buscarPvertice(x);
-        parista a;
-        a=new arista;
-        if(p!=NULL){
-            a->datoDestino=y;
-            a->sgteArista=p->adyacente;
-            p->adyacente=a;
-        }
-    swap(x,y);
-    }
-}
-void grafo::eliminarArista(int x, int y){
-    pvertice p=buscarPvertice(x);
-    parista a=p->adyacente;
-    parista ante=NULL;
-    while(a!=NULL){
-        if(a->datoDestino==y){
-            if(ante==NULL)
-                p->adyacente=a->sgteArista; // Actualizar el inicio de la lista
-            else
-                ante->sgteArista=a->sgteArista; // Actualizar el enlace previo
-            a=NULL; // Liberar la memoria del elemento eliminado
-            continue;
-        }
-        ante=a;
-        a=a->sgteArista;
-    }
 }
 
 void grafo::insertarArista(int x, int y, int z){
@@ -160,62 +100,8 @@ void grafo::insertarArista(int x, int y, int z){
         p->adyacente=a;
     }
 }
-void grafo::imprimirGrafo(){
-    pvertice p;
-    parista a;
-    p=pGrafo;
-    if(p==NULL) cout<<"Grafo vacio\n";
-    else{
-        while(p!=NULL){
-            cout<<" "<<left<<setw(3)<<p->datoOrigen<<" ->";
-            a=p->adyacente;
-            while(a!=NULL){
-                cout<<"  "<<setw(1)<<a->datoDestino;
-                a=a->sgteArista;
-            }
-            cout<<"\n";
-            p=p->sgteVertice;
-        }
-    }
-}
 
-bool grafo::buscarCircuitoDFS(pvertice pGrafo, int v, int padrev){
-    pvertice p,w;
-    p = buscarPvertice(v);
-    p->visit = 1;
-    parista a = p->adyacente;
-    while (a != NULL) {
-        w = buscarPvertice(a->datoDestino);
-        if (w != NULL){
-            if (w->visit == -1) {
-                if (buscarCircuitoDFS(pGrafo,w->datoOrigen,v)) {
-                    return true;
-                }
-            }
-            else if (padrev != w->datoOrigen)
-                return true;
-        }
-        a = a->sgteArista;
-    }
-    return false;
-}
-
-bool grafo::existeCircuito(){
-    pvertice p = pGrafo;
-    setVisit(-1);
-    p = pGrafo;
-    while (p != NULL) {
-        if (p->visit == -1) {
-            if (buscarCircuitoDFS(pGrafo, p->datoOrigen, p->datoOrigen)){
-                return true;
-            }
-        }
-        p = p->sgteVertice;
-    }
-    return false;
-}
-
-void grafo::dijkstra(int origen, int final) {
+void grafo::dijkstra(int origen) {
     int nroVertices = contarVertices();
     vector<int> T(nroVertices, 0); // Vector para almacenar los vértices visitados
     vector<vector<int>> cam(nroVertices); // Vector de vectores para almacenar el camino hacia cada vértice
@@ -262,7 +148,7 @@ void grafo::dijkstra(int origen, int final) {
 
         // Actualizar las distancias de los vértices adyacentes
         pvertice p = buscarPvertice(minVertice);
-       if (p != NULL) {
+				if (p != NULL) {
             parista q = p->adyacente;
             while (q != NULL) {
                 int destino = q->datoDestino;
@@ -287,26 +173,6 @@ void grafo::dijkstra(int origen, int final) {
         }
         cout << endl;
     }
-
-    // Imprimir el arbol
-    // parista a;
-    // p = pGrafo;
-    // if(p==NULL) cout<<"Grafo vacio\n";
-    // else{
-    //     cout << "\n";
-    //     while(p!=NULL){
-    //         cout<<" "<<left<<setw(3)<<p->datoOrigen<<" ->";
-    //         a=p->adyacente;
-    //         while(a!=NULL and T[a->datoDestino] == 1 && padre[a->datoDestino] == p->datoOrigen){
-    //             cout<<"  "<<setw(1)<<a->datoDestino<<"["<<cam[a->datoDestino]<<"]";
-    //             a=a->sgteArista;
-    //         }
-    //         cout<<"\n";
-    //         p=p->sgteVertice;
-    //     }
-    // }
-    // return cam;
-
 }
 
 
@@ -329,14 +195,9 @@ int main(){
     g.insertarArista(1,4,32);
     g.insertarArista(4,2,32);
     g.insertarArista(5,1,24);  
-    cout<<"Vert ||   Aristas\n";
-    g.imprimirGrafo();
     int inicio = 0;
     int final = 1;
-    // cout<<"Impresion del Arbol T (Desde " << inicio << " hasta " << final << "):\n";
-    g.dijkstra(0,final);
-
-
+    g.dijkstra(inicio);
 
     return 0;
 }
